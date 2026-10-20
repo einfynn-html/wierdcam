@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wierd Cam | EXTREME UNCHAINED EDITION</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neon: {
+                            green: '#00ff66',
+                            purple: '#b000ff',
+                            cyan: '#00f3ff',
+                            red: '#ff0055',
+                            yellow: '#ffe600'
+                        },
+                        discord: {
+                            blurple: '#5865F2',
+                            hover: '#4752C4',
+                            green: '#57F287'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #050811; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00ff66; }
+        
+        .crt-grid {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), linear-gradient(90deg, rgba(0, 255, 102, 0.05), rgba(176, 0, 255, 0.03), rgba(0, 243, 255, 0.05));
+            background-size: 100% 4px, 6px 100%;
+        }
+
+        .glitch-text {
+            text-shadow: 2px 0 #b000ff, -2px 0 #00ff66;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            background: #00ff66;
+            box-shadow: 0 0 10px #00ff66;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #00ff66;
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans overflow-hidden antialiased bg-slate-950 text-slate-100 select-none">
+
+    <!-- Top Navigation Header -->
+    <header class="h-14 border-b border-neon-green/30 bg-slate-900/90 backdrop-blur px-4 flex items-center justify-between z-30 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-emerald-500 via-purple-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-neon-green/20">
+                <i data-lucide="camera" class="w-5 h-5 text-black font-bold animate-pulse"></i>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <h1 class="font-extrabold text-base tracking-wider glitch-text text-white">WIERD CAM</h1>
+                    <span class="text-[10px] uppercase font-mono font-bold tracking-widest px-2 py-0.5 rounded bg-emerald-500/20 text-neon-green border border-neon-green/40">UNCHAINED v4.0</span>
+                </div>
+                <p class="text-[10px] text-slate-400">Extreme Unlimited USB-C & Digicam Streaming Suite</p>
+            </div>
+        </div>
+
+        <!-- Center Status Dashboard -->
+        <div class="hidden lg:flex items-center space-x-6 px-4 py-1.5 rounded-full bg-slate-950 border border-emerald-500/30 text-xs">
+            <div class="flex items-center space-x-2">
+                <span id="status-led" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                <span id="status-text" class="font-mono text-slate-300">Disconnected</span>
+            </div>
+            <div class="h-3 w-px bg-slate-800"></div>
+            <div class="flex items-center space-x-1 font-mono text-[11px]">
+                <span class="text-slate-500">ACTUAL FPS:</span>
+                <span id="fps-counter" class="text-neon-cyan font-bold">0</span>
+            </div>
+            <div class="h-3 w-px bg-slate-800"></div>
+            <div class="flex items-center space-x-1 font-mono text-[11px]">
+                <span class="text-slate-500">TARGET:</span>
+                <span id="fps-target-display" class="text-neon-green font-bold">60 FPS</span>
+            </div>
+            <div class="h-3 w-px bg-slate-800"></div>
+            <div class="flex items-center space-x-1 font-mono text-[11px]">
+                <span class="text-slate-500">RES:</span>
+                <span id="res-display" class="text-slate-200">-- x --</span>
+            </div>
+        </div>
+
+        <!-- Right Action Buttons -->
+        <div class="flex items-center space-x-2">
+            <button id="btn-randomizer" class="px-3 py-1.5 bg-gradient-to-r from-purple-600 via-pink-600 to-emerald-500 hover:from-purple-500 hover:to-emerald-400 text-white rounded-lg text-xs font-bold shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5">
+                <i data-lucide="dices" class="w-4 h-4"></i>
+                <span>SCRAMBLE EVERYTHING</span>
+            </button>
+            <button id="btn-reset-all" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition border border-slate-700">
+                Reset to Normal
+            </button>
+            <button id="btn-discord-guide" class="px-3 py-1.5 bg-discord-blurple hover:bg-discord-hover text-white rounded-lg text-xs font-semibold transition shadow-md shadow-discord-blurple/20 flex items-center gap-1.5">
+                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                <span>Discord Stream</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Left Sidebar -->
+        <aside class="w-96 border-r border-slate-800 bg-slate-900/60 flex flex-col shrink-0 overflow-hidden">
+            
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-800 bg-slate-950/80 text-[11px] font-mono overflow-x-auto">
+                <button class="tab-btn flex-1 py-2.5 px-2 text-center border-b-2 border-neon-green text-neon-green font-bold bg-slate-900 whitespace-nowrap" data-tab="tab-hardware">INPUT / CAM</button>
+                <button class="tab-btn flex-1 py-2.5 px-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap" data-tab="tab-color">COLOR & LIGHT</button>
+                <button class="tab-btn flex-1 py-2.5 px-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap" data-tab="tab-glitch">FX & GLITCH</button>
+                <button class="tab-btn flex-1 py-2.5 px-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap" data-tab="tab-transform">GEOMETRY</button>
+                <button class="tab-btn flex-1 py-2.5 px-2 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap" data-tab="tab-audio">AUDIO & REC</button>
+            </div>
+
+            <!-- Scrollable Tab Content Container -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-5">
+
+                <!-- Tab 1: Video Capture & Hardware Setup -->
+                <div id="tab-hardware" class="tab-content space-y-4">
+                    <div class="bg-emerald-950/20 border border-neon-green/30 rounded-xl p-3 text-xs space-y-1">
+                        <span class="font-bold text-neon-green flex items-center gap-1"><i data-lucide="cpu" class="w-3.5 h-3.5"></i> Wierd Cam Device Source</span>
+                        <p class="text-[11px] text-slate-400">Connect your USB-C compact camera, Rollei Digicam, or webcam.</p>
+                    </div>
+
+                    <!-- Camera Select -->
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-mono uppercase text-slate-400 flex justify-between">
+                            <span>Video Input Device</span>
+                            <button id="btn-refresh" class="text-neon-green hover:underline flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh Devices</button>
+                        </label>
+                        <select id="select-camera" class="w-full bg-slate-950 border border-slate-800 focus:border-neon-green rounded-lg px-2.5 py-2 text-xs text-slate-200">
+                            <option value="">Searching camera devices...</option>
+                        </select>
+                    </div>
+
+                    <!-- Audio Device Select -->
+                    <div class="space-y-1">
+                        <label class="text-[11px] font-mono uppercase text-slate-400">Audio Microphone Input</label>
+                        <select id="select-audio" class="w-full bg-slate-950 border border-slate-800 focus:border-neon-green rounded-lg px-2.5 py-2 text-xs text-slate-200">
+                            <option value="">Default Audio Input Device</option>
+                        </select>
+                    </div>
+
+                    <!-- Resolution & Target FPS -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-mono uppercase text-slate-400">Resolution Preset</label>
+                            <select id="select-res" class="w-full bg-slate-950 border border-slate-800 focus:border-neon-green rounded-lg px-2 py-1.5 text-xs text-slate-200">
+                                <option value="3840x2160">4K Ultra HD (3840x2160)</option>
+                                <option value="1920x1080" selected>1080p Full HD</option>
+                                <option value="1280x720">720p HD</option>
+                                <option value="640x480">480p SD Retro</option>
+                                <option value="320x240">240p Wierd Ultra-Low</option>
+                            </select>
+                        </div>
+
+                        <!-- Target FPS Limit Input (Unconstrained) -->
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-mono uppercase text-slate-400">Unconstrained FPS</label>
+                            <input type="number" id="num-fps-limit" value="60" min="1" max="1000" step="1" class="w-full bg-slate-950 border border-slate-800 focus:border-neon-green rounded-lg px-2.5 py-1.5 text-xs text-neon-green font-mono font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Connect / Disconnect -->
+                    <div class="pt-2 flex gap-2">
+                        <button id="btn-start" class="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold py-2 px-3 rounded-lg text-xs shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-1.5">
+                            <i data-lucide="power" class="w-4 h-4"></i> Start Camera Stream
+                        </button>
+                        <button id="btn-stop" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 px-3 rounded-lg text-xs font-semibold disabled:opacity-50" disabled>
+                            Stop
+                        </button>
+                    </div>
+
+                    <hr class="border-slate-800">
+
+                    <!-- Presets Engine -->
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-mono uppercase text-slate-400 font-bold">PRESET LAUNCHER</label>
+                        <div class="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+                            <button class="preset-btn bg-slate-950 border border-slate-800 hover:border-neon-green p-2 rounded text-left text-slate-300" data-preset="neutral">Normal Reality</button>
+                            <button class="preset-btn bg-slate-950 border border-slate-800 hover:border-neon-green p-2 rounded text-left text-yellow-400" data-preset="vintage">Y2K Retro Digicam</button>
+                            <button class="preset-btn bg-slate-950 border border-slate-800 hover:border-neon-green p-2 rounded text-left text-orange-400 font-bold" data-preset="deepfry">DEEP FRYER MEME</button>
+                            <button class="preset-btn bg-slate-950 border border-slate-800 hover:border-neon-green p-2 rounded text-left text-purple-400 font-bold" data-preset="vaporwave">VAPORWAVE GLITCH</button>
+                            <button class="preset-btn bg-slate-950 border border-slate-800 hover:border-neon-green p-2 rounded text-left text-neon-cyan font-bold" data-preset="cyberpunk">CYBERPUNK NEON</button>
+                            <button class="preset-btn bg-slate-950 border border-slate-800 hover:border-neon-green p-2 rounded text-left text-red-500 font-bold" data-preset="nuke">NUCLEAR OVERDRIVE</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Color, Light & EV Controls -->
+                <div id="tab-color" class="tab-content space-y-4 hidden">
+                    <p class="text-[11px] text-slate-400 font-mono">Manual numeric fields accept unrestricted negative/positive numbers.</p>
+
+                    <!-- Brightness -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Brightness (%)</span>
+                            <span class="text-neon-green" id="val-brightness">100%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-brightness" min="-1000" max="5000" step="1" value="100" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-brightness" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-green font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Exposure EV -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Digital Exposure (EV)</span>
+                            <span class="text-neon-green" id="val-exposure">0 EV</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-exposure" min="-10" max="20" step="0.1" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-exposure" value="0" step="0.1" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-green font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Contrast -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Contrast (%)</span>
+                            <span class="text-neon-green" id="val-contrast">100%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-contrast" min="-5000" max="5000" step="5" value="100" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-contrast" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-green font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Saturation -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Saturation / Vibrance (%)</span>
+                            <span class="text-neon-green" id="val-saturation">100%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-saturation" min="-5000" max="5000" step="5" value="100" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-saturation" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-green font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Hue Shift -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Hue Rotation (deg)</span>
+                            <span class="text-neon-green" id="val-hue">0°</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-hue" min="-3600" max="3600" step="5" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-hue" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-green font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Gamma Correction -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Gamma Multiplier</span>
+                            <span class="text-neon-green" id="val-gamma">1.0</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-gamma" min="0.01" max="10" step="0.05" value="1.0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-gamma" value="1.0" step="0.05" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-green font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-800">
+                    <span class="text-[11px] font-mono uppercase text-neon-purple font-bold">RGB Overdrive Channel Multipliers</span>
+
+                    <!-- Red Gain -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-red-400 font-semibold">Red Channel Boost (%)</span>
+                            <span class="text-red-400" id="val-red">100%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-red" min="-1000" max="2000" value="100" class="flex-1 accent-red-500 bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-red" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-red-400 font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Green Gain -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-green-400 font-semibold">Green Channel Boost (%)</span>
+                            <span class="text-green-400" id="val-green">100%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-green" min="-1000" max="2000" value="100" class="flex-1 accent-green-500 bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-green" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-green-400 font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Blue Gain -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-blue-400 font-semibold">Blue Channel Boost (%)</span>
+                            <span class="text-blue-400" id="val-blue">100%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-blue" min="-1000" max="2000" value="100" class="flex-1 accent-blue-500 bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-blue" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-blue-400 font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: FX & Glitch Shader Controls -->
+                <div id="tab-glitch" class="tab-content space-y-4 hidden">
+                    
+                    <!-- Chromatic Aberration -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Chromatic Aberration / RGB Split</span>
+                            <span class="text-neon-cyan" id="val-chroma">0px</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-chroma" min="0" max="300" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-chroma" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Pixelation / Mosaic -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Mosaic Pixelation Block Size</span>
+                            <span class="text-neon-cyan" id="val-pixelate">0px</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-pixelate" min="0" max="500" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-pixelate" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Defocus Blur -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Defocus Blur (px)</span>
+                            <span class="text-neon-cyan" id="val-blur">0px</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-blur" min="0" max="200" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-blur" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Glitch Displacement -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Glitch Scan Displacement (%)</span>
+                            <span class="text-neon-cyan" id="val-glitch">0%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-glitch" min="0" max="500" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-glitch" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- CRT / Scanline Hertz Flicker -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Scanline CRT Flicker (1-500 Hz)</span>
+                            <span class="text-neon-cyan" id="val-flicker">0 Hz</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-flicker" min="0" max="500" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-flicker" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Bloom / Glow -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Bloom Glow Intensity (%)</span>
+                            <span class="text-neon-cyan" id="val-bloom">0%</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-bloom" min="0" max="1000" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-bloom" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Digital Grain / Noise -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Digital Noise Grain Multiplier</span>
+                            <span class="text-neon-cyan" id="val-noise">0</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-noise" min="0" max="500" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-noise" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- FX Toggles -->
+                    <div class="grid grid-cols-2 gap-2 pt-2 text-xs font-mono">
+                        <label class="flex items-center space-x-2 bg-slate-950 border border-slate-800 p-2 rounded cursor-pointer">
+                            <input type="checkbox" id="chk-invert" class="accent-neon-green rounded">
+                            <span>Invert Colors</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-950 border border-slate-800 p-2 rounded cursor-pointer">
+                            <input type="checkbox" id="chk-grayscale" class="accent-neon-green rounded">
+                            <span>Grayscale</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-950 border border-slate-800 p-2 rounded cursor-pointer">
+                            <input type="checkbox" id="chk-sepia" class="accent-neon-green rounded">
+                            <span>Sepia</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-950 border border-slate-800 p-2 rounded cursor-pointer">
+                            <input type="checkbox" id="chk-crt" class="accent-neon-green rounded">
+                            <span>CRT Scanlines</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Geometry Controls -->
+                <div id="tab-transform" class="tab-content space-y-4 hidden">
+                    <p class="text-[11px] text-slate-400 font-mono">Manual inputs allow infinite rotation, pan offsets, and hyper zoom.</p>
+
+                    <!-- Unconstrained Zoom -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Digital Zoom (0.01x to 100x+)</span>
+                            <span class="text-neon-cyan" id="val-zoom">1.0x</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-zoom" min="0.01" max="100" step="0.1" value="1" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-zoom" value="1.0" step="0.01" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Pan X -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Pan X Offset (px)</span>
+                            <span class="text-neon-cyan" id="val-panx">0px</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-panx" min="-2000" max="2000" step="1" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-panx" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Pan Y -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Pan Y Offset (px)</span>
+                            <span class="text-neon-cyan" id="val-pany">0px</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-pany" min="-2000" max="2000" step="1" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-pany" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Rotation Angle -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-mono">
+                            <span class="text-slate-300 font-semibold">Rotation Angle (-3600° to 3600°)</span>
+                            <span class="text-neon-cyan" id="val-rotation">0°</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <input type="range" id="slider-rotation" min="-3600" max="3600" step="1" value="0" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                            <input type="number" id="input-rotation" value="0" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <!-- Mirror Options -->
+                    <div class="grid grid-cols-2 gap-2 pt-2 text-xs font-mono">
+                        <label class="flex items-center space-x-2 bg-slate-950 border border-slate-800 p-2 rounded cursor-pointer">
+                            <input type="checkbox" id="chk-flip-h" class="accent-neon-green rounded">
+                            <span>Flip Horizontal</span>
+                        </label>
+                        <label class="flex items-center space-x-2 bg-slate-950 border border-slate-800 p-2 rounded cursor-pointer">
+                            <input type="checkbox" id="chk-flip-v" class="accent-neon-green rounded">
+                            <span>Flip Vertical</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Audio Controls & Recording -->
+                <div id="tab-audio" class="tab-content space-y-4 hidden">
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-3">
+                        <div class="flex justify-between text-xs font-mono">
+                            <span class="text-slate-400">Audio Microphone Input Level</span>
+                            <span id="audio-db" class="text-slate-500">-∞ dB</span>
+                        </div>
+                        
+                        <!-- Audio Level Bar -->
+                        <div class="h-3 w-full bg-slate-900 rounded-full overflow-hidden flex p-0.5 border border-slate-800">
+                            <div id="audio-level-bar" class="h-full bg-gradient-to-r from-emerald-500 via-yellow-500 to-red-500 rounded-full transition-all duration-75" style="width: 0%"></div>
+                        </div>
+
+                        <!-- Audio Gain Boost -->
+                        <div class="space-y-1 pt-2">
+                            <div class="flex justify-between text-[11px] font-mono">
+                                <span class="text-slate-300 font-semibold">Audio Gain Multiplier (%)</span>
+                                <span class="text-neon-cyan" id="val-audio-gain">100%</span>
+                            </div>
+                            <div class="flex gap-2 items-center">
+                                <input type="range" id="slider-audio-gain" min="0" max="2000" value="100" class="flex-1 accent-neon-green bg-slate-800 h-1.5 rounded cursor-pointer">
+                                <input type="number" id="input-audio-gain" value="100" class="w-20 bg-slate-950 border border-slate-800 rounded text-right text-xs text-neon-cyan font-mono px-2 py-1 font-bold">
+                            </div>
+                        </div>
+
+                        <!-- Audio Listen Toggle -->
+                        <div class="pt-2">
+                            <label class="flex items-center space-x-2 text-xs font-mono text-slate-300 cursor-pointer">
+                                <input type="checkbox" id="chk-audio-listen" class="rounded accent-neon-green">
+                                <span>Monitor Audio locally (Headphones)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Center Viewport Area -->
+        <main class="flex-1 flex flex-col bg-black relative overflow-hidden">
+            
+            <!-- Viewport Header -->
+            <div class="h-9 border-b border-slate-800/80 bg-slate-900/40 px-4 flex items-center justify-between z-10 shrink-0 text-xs font-mono">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></span>
+                    <span class="text-slate-300 font-bold">WIERD CAM LIVE CANVAS</span>
+                </div>
+                
+                <!-- OSD Overlay Toggles -->
+                <div class="flex items-center space-x-4 text-[11px] text-slate-400">
+                    <label class="flex items-center space-x-1 cursor-pointer hover:text-slate-200">
+                        <input type="checkbox" id="chk-osd-stamp" class="rounded accent-neon-green" checked>
+                        <span>Retro OSD Overlay</span>
+                    </label>
+                    <label class="flex items-center space-x-1 cursor-pointer hover:text-slate-200">
+                        <input type="checkbox" id="chk-osd-grid" class="rounded accent-neon-green">
+                        <span>Rule of Thirds Grid</span>
+                    </label>
+                    <label class="flex items-center space-x-1 cursor-pointer hover:text-slate-200">
+                        <input type="checkbox" id="chk-osd-watermark" class="rounded accent-neon-green" checked>
+                        <span>"WIERD CAM" Watermark</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Viewport Canvas Container -->
+            <div id="viewport-container" class="flex-1 relative flex items-center justify-center bg-black overflow-hidden p-2">
+                
+                <!-- Hidden Source Video Element -->
+                <video id="raw-video" autoplay playsinline muted class="hidden"></video>
+                
+                <!-- Main Processing Canvas -->
+                <canvas id="output-canvas" class="max-w-full max-h-full rounded shadow-2xl bg-slate-950 object-contain"></canvas>
+
+                <!-- CRT Overlay -->
+                <div id="crt-overlay" class="absolute inset-0 pointer-events-none crt-grid opacity-0 transition-opacity duration-200"></div>
+
+                <!-- Grid Overlay -->
+                <div id="grid-overlay" class="absolute inset-0 pointer-events-none opacity-0 grid grid-cols-3 grid-rows-3 border border-neon-green/20">
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                    <div class="border border-neon-green/10"></div>
+                </div>
+
+                <!-- Wierd Cam OSD Layer -->
+                <div id="osd-layer" class="absolute top-6 left-6 font-mono text-neon-green text-xs tracking-wider font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] pointer-events-none flex flex-col space-y-1">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 bg-neon-green rounded-full animate-pulse"></span>
+                        <span class="text-black bg-neon-green px-1.5 py-0.5 rounded text-[10px] font-black">WIERD CAM UNCHAINED</span>
+                    </div>
+                    <span id="osd-clock">2026-10-20 21:39:00</span>
+                    <span id="osd-battery" class="text-neon-cyan text-[10px] flex items-center gap-1">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i> PWR ACTIVE
+                    </span>
+                </div>
+
+                <div id="osd-watermark-text" class="absolute bottom-6 right-6 font-mono font-extrabold text-white/30 text-2xl tracking-widest pointer-events-none glitch-text">
+                    WIERD CAM
+                </div>
+
+                <!-- Disconnected Placeholder Screen -->
+                <div id="placeholder-screen" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 text-slate-500 space-y-4 p-6 text-center">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600">
+                        <i data-lucide="camera-off" class="w-8 h-8 text-neon-green/50"></i>
+                    </div>
+                    <div class="max-w-md space-y-1">
+                        <h3 class="text-sm font-bold text-slate-300 font-mono">WIERD CAM OFFLINE</h3>
+                        <p class="text-xs text-slate-500">Select your camera device from the left bar and click "Start Camera Stream".</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Floating Action Bar -->
+            <div class="h-16 border-t border-slate-800 bg-slate-900/80 backdrop-blur px-6 flex items-center justify-between z-20 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <button id="btn-snapshot" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i data-lucide="camera" class="w-4 h-4 text-neon-cyan"></i>
+                        <span>Photo Snapshot</span>
+                    </button>
+                    <button id="btn-record" class="px-3.5 py-2 bg-slate-800 hover:bg-red-950/60 hover:border-red-600 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                        <i data-lucide="disc" class="w-4 h-4 text-neon-red"></i>
+                        <span id="record-btn-text">Record .WebM</span>
+                    </button>
+                </div>
+
+                <button id="btn-popout" class="px-5 py-2.5 bg-gradient-to-r from-discord-blurple to-indigo-600 hover:from-discord-hover hover:to-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-discord-blurple/30 transition">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    <span>Wierd Cam - Live Stream Popout</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Discord Stream Modal -->
+    <div id="modal-discord" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 relative">
+            <button id="btn-close-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-discord-blurple/20 border border-discord-blurple/40 flex items-center justify-center text-discord-blurple">
+                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white">Discord Screen Share Setup</h3>
+                    <p class="text-xs text-slate-400">Stream your modified camera feed directly into Discord calls.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3 text-xs">
+                <ol class="list-decimal list-inside space-y-2 text-slate-300 leading-relaxed">
+                    <li>Click <b class="text-neon-green">"Launch Wierd Cam Popout"</b> below.</li>
+                    <li>Open <b class="text-discord-blurple">Discord</b> and enter your voice channel.</li>
+                    <li>Click <b class="text-white">"Share Your Screen"</b>.</li>
+                    <li>Under <b class="text-white">"Applications"</b>, choose <b class="text-neon-green">"Wierd Cam - Live Stream"</b>.</li>
+                </ol>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button id="btn-modal-popout-launch" class="px-4 py-2 bg-discord-blurple hover:bg-discord-hover text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    <span>Launch Wierd Cam Popout</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-20 right-6 bg-slate-900 border border-neon-green/50 text-slate-100 px-4 py-2.5 rounded-xl shadow-2xl flex items-center space-x-2 text-xs translate-y-10 opacity-0 transition-all pointer-events-none z-50">
+        <i data-lucide="zap" class="w-4 h-4 text-neon-green"></i>
+        <span id="toast-msg">Wierd Cam Message</span>
+    </div>
+
+    <!-- Application Engine Script -->
+    <script>
+        // Stream & Audio State
+        let mediaStream = null;
+        let audioContext = null;
+        let audioGainNode = null;
+        let audioAnalyser = null;
+        let animationFrameId = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+        let popoutWindow = null;
+
+        // Unchained Parameters Object
+        const params = {
+            fpsTarget: 60,
+            brightness: 100,
+            exposure: 0,
+            contrast: 100,
+            saturation: 100,
+            hue: 0,
+            gamma: 1.0,
+            red: 100,
+            green: 100,
+            blue: 100,
+            chroma: 0,
+            pixelate: 0,
+            blur: 0,
+            glitch: 0,
+            flicker: 0,
+            bloom: 0,
+            noise: 0,
+            zoom: 1.0,
+            panx: 0,
+            pany: 0,
+            rotation: 0,
+            invert: false,
+            grayscale: false,
+            sepia: false,
+            crt: false,
+            flipH: false,
+            flipV: false,
+            audioGain: 100
+        };
+
+        // Tab Switching Logic
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('border-neon-green', 'text-neon-green', 'font-bold', 'bg-slate-900');
+                    b.classList.add('border-transparent', 'text-slate-400');
+                });
+                btn.classList.add('border-neon-green', 'text-neon-green', 'font-bold', 'bg-slate-900');
+                btn.classList.remove('border-transparent', 'text-slate-400');
+
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                document.getElementById(btn.dataset.tab).classList.remove('hidden');
+            });
+        });
+
+        // DOM Elements
+        const selectCamera = document.getElementById('select-camera');
+        const selectAudio = document.getElementById('select-audio');
+        const selectRes = document.getElementById('select-res');
+        const numFpsLimit = document.getElementById('num-fps-limit');
+        const btnStart = document.getElementById('btn-start');
+        const btnStop = document.getElementById('btn-stop');
+        const btnRefresh = document.getElementById('btn-refresh');
+
+        const rawVideo = document.getElementById('raw-video');
+        const canvas = document.getElementById('output-canvas');
+        const ctx = canvas.getContext('2d');
+        const placeholderScreen = document.getElementById('placeholder-screen');
+
+        const statusLed = document.getElementById('status-led');
+        const statusText = document.getElementById('status-text');
+        const fpsCounter = document.getElementById('fps-counter');
+        const fpsTargetDisplay = document.getElementById('fps-target-display');
+        const resDisplay = document.getElementById('res-display');
+
+        // Synchronize Sliders with Direct Manual Numeric Input Fields (No Clamps)
+        function bindControl(sliderId, inputId, labelId, paramName, formatFn) {
+            const slider = document.getElementById(sliderId);
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+
+            function updateFromSlider(val) {
+                const numericVal = parseFloat(val);
+                params[paramName] = numericVal;
+                input.value = numericVal;
+                if (label) label.textContent = formatFn ? formatFn(numericVal) : `${numericVal}`;
+            }
+
+            function updateFromInput(val) {
+                const numericVal = parseFloat(val);
+                if (isNaN(numericVal)) return;
+                params[paramName] = numericVal;
+                slider.value = numericVal;
+                if (label) label.textContent = formatFn ? formatFn(numericVal) : `${numericVal}`;
+            }
+
+            slider.addEventListener('input', (e) => updateFromSlider(e.target.value));
+            input.addEventListener('input', (e) => updateFromInput(e.target.value));
+            input.addEventListener('change', (e) => updateFromInput(e.target.value));
+        }
+
+        // Initialize Control Binds
+        bindControl('slider-brightness', 'input-brightness', 'val-brightness', 'brightness', v => `${v}%`);
+        bindControl('slider-exposure', 'input-exposure', 'val-exposure', 'exposure', v => `${v} EV`);
+        bindControl('slider-contrast', 'input-contrast', 'val-contrast', 'contrast', v => `${v}%`);
+        bindControl('slider-saturation', 'input-saturation', 'val-saturation', 'saturation', v => `${v}%`);
+        bindControl('slider-hue', 'input-hue', 'val-hue', 'hue', v => `${v}°`);
+        bindControl('slider-gamma', 'input-gamma', 'val-gamma', 'gamma', v => `${v}`);
+        bindControl('slider-red', 'input-red', 'val-red', 'red', v => `${v}%`);
+        bindControl('slider-green', 'input-green', 'val-green', 'green', v => `${v}%`);
+        bindControl('slider-blue', 'input-blue', 'val-blue', 'blue', v => `${v}%`);
+        bindControl('slider-chroma', 'input-chroma', 'val-chroma', 'chroma', v => `${v}px`);
+        bindControl('slider-pixelate', 'input-pixelate', 'val-pixelate', 'pixelate', v => `${v}px`);
+        bindControl('slider-blur', 'input-blur', 'val-blur', 'blur', v => `${v}px`);
+        bindControl('slider-glitch', 'input-glitch', 'val-glitch', 'glitch', v => `${v}%`);
+        bindControl('slider-flicker', 'input-flicker', 'val-flicker', 'flicker', v => `${v} Hz`);
+        bindControl('slider-bloom', 'input-bloom', 'val-bloom', 'bloom', v => `${v}%`);
+        bindControl('slider-noise', 'input-noise', 'val-noise', 'noise', v => `${v}`);
+        bindControl('slider-zoom', 'input-zoom', 'val-zoom', 'zoom', v => `${v}x`);
+        bindControl('slider-panx', 'input-panx', 'val-panx', 'panx', v => `${v}px`);
+        bindControl('slider-pany', 'input-pany', 'val-pany', 'pany', v => `${v}px`);
+        bindControl('slider-rotation', 'input-rotation', 'val-rotation', 'rotation', v => `${v}°`);
+        bindControl('slider-audio-gain', 'input-audio-gain', 'val-audio-gain', 'audioGain', v => `${v}%`);
+
+        // Checkbox Event Listeners
+        document.getElementById('chk-invert').addEventListener('change', e => params.invert = e.target.checked);
+        document.getElementById('chk-grayscale').addEventListener('change', e => params.grayscale = e.target.checked);
+        document.getElementById('chk-sepia').addEventListener('change', e => params.sepia = e.target.checked);
+        document.getElementById('chk-crt').addEventListener('change', e => {
+            params.crt = e.target.checked;
+            document.getElementById('crt-overlay').style.opacity = e.target.checked ? '1' : '0';
+        });
+        document.getElementById('chk-flip-h').addEventListener('change', e => params.flipH = e.target.checked);
+        document.getElementById('chk-flip-v').addEventListener('change', e => params.flipV = e.target.checked);
+
+        numFpsLimit.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value) || 60;
+            params.fpsTarget = val;
+            fpsTargetDisplay.textContent = `${val} FPS`;
+        });
+
+        // Enumerate Video & Audio Devices
+        async function enumerateDevices() {
+            try {
+                const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => null);
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                if (tempStream) tempStream.getTracks().forEach(t => t.stop());
+
+                selectCamera.innerHTML = '';
+                selectAudio.innerHTML = '<option value="">Default Audio Input</option>';
+
+                devices.forEach((device, index) => {
+                    if (device.kind === 'videoinput') {
+                        const opt = document.createElement('option');
+                        opt.value = device.deviceId;
+                        opt.textContent = device.label || `Camera Device ${index + 1}`;
+                        selectCamera.appendChild(opt);
+                    } else if (device.kind === 'audioinput') {
+                        const opt = document.createElement('option');
+                        opt.value = device.deviceId;
+                        opt.textContent = device.label || `Microphone ${index + 1}`;
+                        selectAudio.appendChild(opt);
+                    }
+                });
+
+                showToast("Wierd Cam: Devices Enumerated");
+            } catch (err) {
+                showToast("Device Enumeration Failed");
+            }
+        }
+
+        // Start Stream
+        async function startCamera() {
+            if (mediaStream) stopCamera();
+
+            const [w, h] = selectRes.value.split('x').map(Number);
+            const constraints = {
+                video: {
+                    deviceId: selectCamera.value ? { exact: selectCamera.value } : undefined,
+                    width: { ideal: w },
+                    height: { ideal: h }
+                },
+                audio: selectAudio.value ? { deviceId: { exact: selectAudio.value } } : true
+            };
+
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                rawVideo.srcObject = mediaStream;
+                await rawVideo.play();
+
+                const track = mediaStream.getVideoTracks()[0].getSettings();
+                resDisplay.textContent = `${track.width || w}x${track.height || h}`;
+
+                statusLed.className = "w-2.5 h-2.5 rounded-full bg-neon-green animate-pulse";
+                statusText.textContent = "Live Feed Active";
+                placeholderScreen.classList.add('hidden');
+
+                btnStart.disabled = true;
+                btnStop.disabled = false;
+
+                setupAudio(mediaStream);
+                requestAnimationFrame(renderLoop);
+
+                showToast("Wierd Cam Live Stream Active!");
+            } catch (err) {
+                statusText.textContent = "Camera Connection Error";
+                showToast("Could not open camera video stream");
+            }
+        }
+
+        // Stop Stream
+        function stopCamera() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(t => t.stop());
+                mediaStream = null;
+            }
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+            placeholderScreen.classList.remove('hidden');
+            statusLed.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+            statusText.textContent = "Disconnected";
+            resDisplay.textContent = "-- x --";
+            fpsCounter.textContent = "0";
+
+            btnStart.disabled = false;
+            btnStop.disabled = true;
+        }
+
+        // Render Frame Pipeline
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        let lastFpsUpdate = performance.now();
+
+        function renderLoop(now) {
+            if (!mediaStream) return;
+
+            const elapsed = now - lastFrameTime;
+            const targetInterval = 1000 / (params.fpsTarget > 0 ? params.fpsTarget : 60);
+
+            if (elapsed >= targetInterval) {
+                lastFrameTime = now - (elapsed % targetInterval);
+                frameCount++;
+
+                if (now - lastFpsUpdate >= 1000) {
+                    fpsCounter.textContent = frameCount;
+                    frameCount = 0;
+                    lastFpsUpdate = now;
+                }
+
+                if (rawVideo.videoWidth && canvas.width !== rawVideo.videoWidth) {
+                    canvas.width = rawVideo.videoWidth;
+                    canvas.height = rawVideo.videoHeight;
+                }
+
+                ctx.save();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // CRT Flicker Simulation
+                if (params.flicker > 0) {
+                    const flickerPeriod = 1000 / params.flicker;
+                    if (Math.floor(now / flickerPeriod) % 2 === 0) {
+                        ctx.fillStyle = "#000000";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        animationFrameId = requestAnimationFrame(renderLoop);
+                        return;
+                    }
+                }
+
+                // Geometric Transformations
+                ctx.translate(canvas.width / 2 + params.panx, canvas.height / 2 + params.pany);
+                ctx.scale(
+                    params.zoom * (params.flipH ? -1 : 1),
+                    params.zoom * (params.flipV ? -1 : 1)
+                );
+                if (params.rotation !== 0) {
+                    ctx.rotate((params.rotation * Math.PI) / 180);
+                }
+
+                // Pixelation Rendering Switch
+                ctx.imageSmoothingEnabled = params.pixelate <= 0;
+
+                // Build CSS Filter Pipeline
+                let filterStr = `brightness(${params.brightness}%) contrast(${params.contrast}%) saturate(${params.saturation}%) hue-rotate(${params.hue}deg)`;
+
+                if (params.exposure !== 0) {
+                    const gainMult = Math.pow(2, params.exposure);
+                    filterStr += ` brightness(${gainMult * 100}%)`;
+                }
+
+                if (params.blur > 0) filterStr += ` blur(${params.blur}px)`;
+                if (params.invert) filterStr += ` invert(100%)`;
+                if (params.grayscale) filterStr += ` grayscale(100%)`;
+                if (params.sepia) filterStr += ` sepia(100%)`;
+                if (params.bloom > 0) filterStr += ` drop-shadow(0 0 ${params.bloom / 10}px rgba(0,255,102,0.8))`;
+
+                ctx.filter = filterStr;
+
+                // Draw Base Frame
+                ctx.drawImage(rawVideo, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+
+                // Chromatic Aberration / RGB Split
+                if (params.chroma > 0) {
+                    ctx.globalCompositeOperation = 'screen';
+                    ctx.filter = `brightness(140%) hue-rotate(90deg)`;
+                    ctx.drawImage(rawVideo, -canvas.width / 2 + params.chroma, -canvas.height / 2, canvas.width, canvas.height);
+                    ctx.filter = `brightness(140%) hue-rotate(270deg)`;
+                    ctx.drawImage(rawVideo, -canvas.width / 2 - params.chroma, -canvas.height / 2, canvas.width, canvas.height);
+                    ctx.globalCompositeOperation = 'source-over';
+                }
+
+                // Glitch Slice Displacement Effect
+                if (params.glitch > 0 && Math.random() < params.glitch / 100) {
+                    const slices = 12;
+                    for (let i = 0; i < slices; i++) {
+                        const sliceY = (canvas.height / slices) * i - canvas.height / 2;
+                        const sliceH = canvas.height / slices;
+                        const offsetX = (Math.random() - 0.5) * params.glitch * 8;
+                        ctx.drawImage(
+                            rawVideo,
+                            0, i * (rawVideo.videoHeight / slices), rawVideo.videoWidth, rawVideo.videoHeight / slices,
+                            -canvas.width / 2 + offsetX, sliceY, canvas.width, sliceH
+                        );
+                    }
+                }
+
+                // RGB Overdrive & Grain Processing
+                if (params.red !== 100 || params.green !== 100 || params.blue !== 100 || params.gamma !== 1.0 || params.noise > 0) {
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imgData.data;
+                    const rMult = params.red / 100;
+                    const gMult = params.green / 100;
+                    const bMult = params.blue / 100;
+                    const invGamma = 1 / (params.gamma || 1);
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        let r = data[i] * rMult;
+                        let g = data[i+1] * gMult;
+                        let b = data[i+2] * bMult;
+
+                        if (params.gamma !== 1.0) {
+                            r = 255 * Math.pow(r / 255, invGamma);
+                            g = 255 * Math.pow(g / 255, invGamma);
+                            b = 255 * Math.pow(b / 255, invGamma);
+                        }
+
+                        if (params.noise > 0) {
+                            const n = (Math.random() - 0.5) * params.noise;
+                            r += n; g += n; b += n;
+                        }
+
+                        data[i] = Math.min(255, Math.max(0, r));
+                        data[i+1] = Math.min(255, Math.max(0, g));
+                        data[i+2] = Math.min(255, Math.max(0, b));
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                }
+
+                ctx.restore();
+            }
+
+            animationFrameId = requestAnimationFrame(renderLoop);
+        }
+
+        // Setup Audio Gain & Visualizer
+        function setupAudio(stream) {
+            const track = stream.getAudioTracks()[0];
+            if (!track) return;
+
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaStreamSource(stream);
+            audioGainNode = audioContext.createGain();
+            audioAnalyser = audioContext.createAnalyser();
+
+            source.connect(audioGainNode);
+            audioGainNode.connect(audioAnalyser);
+
+            setInterval(() => {
+                if (audioGainNode) {
+                    audioGainNode.gain.value = params.audioGain / 100;
+                }
+            }, 100);
+
+            document.getElementById('chk-audio-listen').addEventListener('change', e => {
+                if (e.target.checked) {
+                    audioGainNode.connect(audioContext.destination);
+                } else {
+                    audioGainNode.disconnect(audioContext.destination);
+                }
+            });
+
+            const data = new Uint8Array(audioAnalyser.frequencyBinCount);
+            function updateAudioMeter() {
+                if (!audioAnalyser) return;
+                audioAnalyser.getByteFrequencyData(data);
+                let sum = 0;
+                for (let i = 0; i < data.length; i++) sum += data[i];
+                let avg = sum / data.length;
+                let pct = Math.min(100, Math.round((avg / 128) * 100));
+                document.getElementById('audio-level-bar').style.width = `${pct}%`;
+                document.getElementById('audio-db').textContent = pct > 0 ? `${Math.round(pct - 100)} dB` : '-∞ dB';
+                requestAnimationFrame(updateAudioMeter);
+            }
+            updateAudioMeter();
+        }
+
+        // Scramble Everything Chaos Button
+        document.getElementById('btn-randomizer').addEventListener('click', () => {
+            const setVal = (id, inputId, val) => {
+                document.getElementById(id).value = val;
+                document.getElementById(inputId).value = val;
+                document.getElementById(id).dispatchEvent(new Event('input'));
+            };
+
+            setVal('slider-zoom', 'input-zoom', (Math.random() * 5 + 0.5).toFixed(2));
+            setVal('slider-brightness', 'input-brightness', Math.floor(Math.random() * 600));
+            setVal('slider-contrast', 'input-contrast', Math.floor(Math.random() * 800));
+            setVal('slider-saturation', 'input-saturation', Math.floor(Math.random() * 1000 - 200));
+            setVal('slider-hue', 'input-hue', Math.floor(Math.random() * 1080 - 540));
+            setVal('slider-chroma', 'input-chroma', Math.floor(Math.random() * 80));
+            setVal('slider-glitch', 'input-glitch', Math.floor(Math.random() * 90));
+
+            showToast("WIERD CAM: EVERYTHING SCRAMBLED 🎲");
+        });
+
+        // Reset to Normal
+        document.getElementById('btn-reset-all').addEventListener('click', () => {
+            const setVal = (id, inputId, val) => {
+                document.getElementById(id).value = val;
+                document.getElementById(inputId).value = val;
+                document.getElementById(id).dispatchEvent(new Event('input'));
+            };
+
+            setVal('slider-brightness', 'input-brightness', 100);
+            setVal('slider-exposure', 'input-exposure', 0);
+            setVal('slider-contrast', 'input-contrast', 100);
+            setVal('slider-saturation', 'input-saturation', 100);
+            setVal('slider-hue', 'input-hue', 0);
+            setVal('slider-gamma', 'input-gamma', 1.0);
+            setVal('slider-red', 'input-red', 100);
+            setVal('slider-green', 'input-green', 100);
+            setVal('slider-blue', 'input-blue', 100);
+            setVal('slider-chroma', 'input-chroma', 0);
+            setVal('slider-pixelate', 'input-pixelate', 0);
+            setVal('slider-blur', 'input-blur', 0);
+            setVal('slider-glitch', 'input-glitch', 0);
+            setVal('slider-flicker', 'input-flicker', 0);
+            setVal('slider-bloom', 'input-bloom', 0);
+            setVal('slider-noise', 'input-noise', 0);
+            setVal('slider-zoom', 'input-zoom', 1.0);
+            setVal('slider-panx', 'input-panx', 0);
+            setVal('slider-pany', 'input-pany', 0);
+            setVal('slider-rotation', 'input-rotation', 0);
+
+            params.invert = false;
+            params.grayscale = false;
+            params.sepia = false;
+            params.crt = false;
+            params.flipH = false;
+            params.flipV = false;
+
+            document.getElementById('chk-invert').checked = false;
+            document.getElementById('chk-grayscale').checked = false;
+            document.getElementById('chk-sepia').checked = false;
+            document.getElementById('chk-crt').checked = false;
+            document.getElementById('chk-flip-h').checked = false;
+            document.getElementById('chk-flip-v').checked = false;
+            document.getElementById('crt-overlay').style.opacity = '0';
+
+            showToast("Wierd Cam: Reset to Normal");
+        });
+
+        // Presets Engine
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const p = btn.dataset.preset;
+                document.getElementById('btn-reset-all').click();
+
+                if (p === 'vintage') {
+                    document.getElementById('input-brightness').value = 110;
+                    document.getElementById('input-contrast').value = 130;
+                    document.getElementById('input-hue').value = -15;
+                    document.getElementById('chk-sepia').checked = true;
+                    document.getElementById('input-brightness').dispatchEvent(new Event('input'));
+                } else if (p === 'deepfry') {
+                    document.getElementById('input-saturation').value = 1500;
+                    document.getElementById('input-contrast').value = 2000;
+                    document.getElementById('input-chroma').value = 35;
+                    document.getElementById('input-saturation').dispatchEvent(new Event('input'));
+                } else if (p === 'vaporwave') {
+                    document.getElementById('input-hue').value = 290;
+                    document.getElementById('input-saturation').value = 250;
+                    document.getElementById('input-bloom').value = 150;
+                    document.getElementById('input-hue').dispatchEvent(new Event('input'));
+                } else if (p === 'cyberpunk') {
+                    document.getElementById('input-hue').value = 180;
+                    document.getElementById('input-contrast').value = 300;
+                    document.getElementById('input-chroma').value = 20;
+                    document.getElementById('input-hue').dispatchEvent(new Event('input'));
+                } else if (p === 'nuke') {
+                    document.getElementById('input-brightness').value = 2500;
+                    document.getElementById('input-contrast').value = 3000;
+                    document.getElementById('input-brightness').dispatchEvent(new Event('input'));
+                }
+            });
+        });
+
+        // Open Discord Clean Popout Window
+        function openPopout() {
+            if (popoutWindow && !popoutWindow.closed) {
+                popoutWindow.focus();
+                return;
+            }
+
+            popoutWindow = window.open('', 'Wierd Cam - Live Stream', 'width=1280,height=720,menubar=no,toolbar=no');
+
+            if (!popoutWindow) {
+                showToast("Popout blocked! Allow popups for Wierd Cam.");
+                return;
+            }
+
+            popoutWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Wierd Cam - Live Stream</title>
+                    <style>
+                        body { margin: 0; background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+                        canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+                    </style>
+                </head>
+                <body>
+                    <canvas id="popout-canvas"></canvas>
+                    <script>
+                        const targetCanvas = document.getElementById('popout-canvas');
+                        const ctx = targetCanvas.getContext('2d');
+                        function sync() {
+                            if (window.opener && !window.opener.closed) {
+                                const src = window.opener.document.getElementById('output-canvas');
+                                if (src && src.width > 0) {
+                                    if (targetCanvas.width !== src.width) {
+                                        targetCanvas.width = src.width;
+                                        targetCanvas.height = src.height;
+                                    }
+                                    ctx.drawImage(src, 0, 0);
+                                }
+                            }
+                            requestAnimationFrame(sync);
+                        }
+                        sync();
+                    <\/script>
+                </body>
+                </html>
+            `);
+
+            showToast("Wierd Cam Popout Window Active!");
+        }
+
+        document.getElementById('btn-popout').addEventListener('click', openPopout);
+        document.getElementById('btn-modal-popout-launch').addEventListener('click', openPopout);
+
+        // Snapshot Download
+        document.getElementById('btn-snapshot').addEventListener('click', () => {
+            if (!mediaStream) return showToast("Start camera stream first!");
+            const a = document.createElement('a');
+            a.download = `WierdCam-Snap-${Date.now()}.png`;
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+            showToast("📸 Wierd Cam Snapshot Saved!");
+        });
+
+        // Recording Video (.webm)
+        document.getElementById('btn-record').addEventListener('click', () => {
+            if (!mediaStream) return showToast("Start camera stream first!");
+            const btnText = document.getElementById('record-btn-text');
+            const btn = document.getElementById('btn-record');
+
+            if (!isRecording) {
+                const stream = canvas.captureStream(params.fpsTarget);
+                if (mediaStream.getAudioTracks().length > 0) stream.addTrack(mediaStream.getAudioTracks()[0]);
+
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `WierdCam-Rec-${Date.now()}.webm`;
+                    a.click();
+                };
+                mediaRecorder.start();
+                isRecording = true;
+                btnText.textContent = "Stop Recording";
+                btn.classList.add('bg-red-600', 'animate-pulse');
+                showToast("🔴 Recording Started!");
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                btnText.textContent = "Record .WebM";
+                btn.classList.remove('bg-red-600', 'animate-pulse');
+                showToast("💾 Video File Downloaded!");
+            }
+        });
+
+        // OSD Clock
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('osd-clock').textContent = now.toISOString().replace('T', ' ').substring(0, 19);
+        }, 1000);
+
+        // OSD Overlay Toggles
+        document.getElementById('chk-osd-stamp').addEventListener('change', e => {
+            document.getElementById('osd-layer').style.display = e.target.checked ? 'flex' : 'none';
+        });
+
+        document.getElementById('chk-osd-grid').addEventListener('change', e => {
+            document.getElementById('grid-overlay').style.opacity = e.target.checked ? '1' : '0';
+        });
+
+        document.getElementById('chk-osd-watermark').addEventListener('change', e => {
+            document.getElementById('osd-watermark-text').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        // Discord Modal Handlers
+        document.getElementById('btn-discord-guide').addEventListener('click', () => {
+            document.getElementById('modal-discord').classList.remove('opacity-0', 'pointer-events-none');
+        });
+        document.getElementById('btn-close-modal').addEventListener('click', () => {
+            document.getElementById('modal-discord').classList.add('opacity-0', 'pointer-events-none');
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('translate-y-10', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => toast.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none'), 3000);
+        }
+
+        // App Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            enumerateDevices();
+            btnStart.addEventListener('click', startCamera);
+            btnStop.addEventListener('click', stopCamera);
+            btnRefresh.addEventListener('click', enumerateDevices);
+        });
+    </script>
+</body>
+</html>
